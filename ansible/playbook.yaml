@@ -1,0 +1,36 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install Docker Compose
+      apt:
+        name: docker-compose
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Deploy Jenkins and SonarQube with Docker Compose
+      copy:
+        content: |
+          version: '3'
+          services:
+            jenkins:
+              image: jenkins/jenkins:lts
+              ports:
+                - "8080:8080"
+            sonarqube:
+              image: sonarqube
+              ports:
+                - "9000:9000"
+        dest: /home/ubuntu/docker-compose.yml
+
+    - name: Run Docker Compose
+      command: docker-compose up -d
